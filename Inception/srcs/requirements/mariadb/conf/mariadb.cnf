@@ -1,0 +1,40 @@
+[mysqld]
+# Basic settings
+user = mysql
+port = 3306
+datadir = /var/lib/mysql
+socket = /var/run/mysqld/mysqld.sock
+
+# Network settings
+bind-address = 0.0.0.0
+skip-networking = false
+
+# Character set
+character-set-server = utf8mb4
+collation-server = utf8mb4_unicode_ci
+
+# Performance
+max_connections = 100
+connect_timeout = 5
+wait_timeout = 600
+max_allowed_packet = 16M
+thread_cache_size = 128
+sort_buffer_size = 4M
+bulk_insert_buffer_size = 16M
+tmp_table_size = 32M
+max_heap_table_size = 32M
+
+# Logging
+log_error = /var/log/mysql/error.log
+general_log = 0
+
+# InnoDB settings
+innodb_buffer_pool_size = 256M
+innodb_log_file_size = 64M
+innodb_flush_method = O_DIRECT
+innodb_file_per_table = 1
+
+[client]
+port = 3306
+socket = /var/run/mysqld/mysqld.sock
+default-character-set = utf8mb4
