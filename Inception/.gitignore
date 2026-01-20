@@ -1,0 +1,24 @@
+# # Secrets and sensitive data
+# secrets/
+# srcs/.env
+# *.txt
+
+# # Data directories
+# /home/*/data/
+
+# # Docker volumes
+# data/
+
+# # Editor files
+# .vscode/
+# .idea/
+# *.swp
+# *.swo
+# *~
+
+# # OS files
+# .DS_Store
+# Thumbs.db
+
+# # Logs
+# *.log

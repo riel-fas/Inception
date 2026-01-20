@@ -36,6 +36,11 @@ services:
       mariadb:
         condition: service_healthy
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "pidof", "php-fpm82"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   nginx:
     container_name: nginx
@@ -50,7 +55,8 @@ services:
     networks:
       - inception_network
     depends_on:
-      - wordpress
+      wordpress:
+        condition: service_healthy
     ports:
       - "443:443"
     restart: unless-stopped
