@@ -63,12 +63,21 @@ services:
 
 volumes:
   mariadb_data:
-    name: mariaddb_data
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/riel-fas/data/mariadb
 
   wordpress_data:
-    name: wordpress_data
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/riel-fas/data/wordpress
 
 
 networks:
   inception_network:
     driver: bridge
+
