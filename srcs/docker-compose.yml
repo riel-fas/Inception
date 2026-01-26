@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   mariadb:
     container_name: mariadb
@@ -61,6 +59,8 @@ services:
       - "443:443"
     restart: unless-stopped
 
+
+
 volumes:
   mariadb_data:
     driver: local
@@ -75,6 +75,7 @@ volumes:
       type: none
       o: bind
       device: /home/riel-fas/data/wordpress
+
 
 
 networks:
