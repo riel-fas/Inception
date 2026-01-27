@@ -20,7 +20,7 @@ build:
 # Start all containers
 up:
 	@echo "$(YELLOW)Starting containers...$(NC)"
-	docker compose -f $(COMPOSE_FILE) up -d
+	docker compose -f $(COMPOSE_FILE) up -d --build
 	@echo "$(GREEN)Containers are running!$(NC)"
 	@echo "$(GREEN)Access your website at: https://riel-fas.42.fr$(NC)"
 
