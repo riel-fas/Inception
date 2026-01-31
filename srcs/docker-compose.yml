@@ -59,25 +59,6 @@ services:
       - "443:443"
     restart: unless-stopped
 
-  redis:
-    container_name: redis
-    build:
-      context: ./requirements/bonus/redis
-      dockerfile: Dockerfile
-    image: redis
-    volumes:
-      - redis_data:/data
-    networks:
-      - inception_network
-    depends_on:
-      mariadb:
-        condition: service_healthy
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
 
 volumes:
@@ -95,8 +76,6 @@ volumes:
       o: bind
       device: /home/riel-fas/data/wordpress
   
-  redis_data:
-    driver: local
 
 
 
