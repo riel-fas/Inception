@@ -4,7 +4,7 @@ services:
     build:
       context: ./requirements/mariadb
       dockerfile: Dockerfile
-    image: mariadb
+    image: inception_mariadb
     env_file:
       - .env
     volumes:
@@ -23,7 +23,7 @@ services:
     build:
       context: ./requirements/wordpress
       dockerfile: Dockerfile
-    image: wordpress
+    image: inception_wordpress
     env_file:
       - .env
     volumes:
@@ -45,7 +45,7 @@ services:
     build:
       context: ./requirements/nginx
       dockerfile: Dockerfile
-    image: nginx
+    image: inception_nginx
     env_file:
       - .env
     volumes:
@@ -59,6 +59,26 @@ services:
       - "443:443"
     restart: unless-stopped
 
+  redis:
+    container_name: redis
+    build:
+      context: ./requirements/bonus/redis
+      dockerfile: Dockerfile
+    image: inception_redis
+    volumes:
+      - redis_data:/data
+    networks:
+      - inception_network
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  
 
 
 volumes:
@@ -75,6 +95,9 @@ volumes:
       type: none
       o: bind
       device: /home/riel-fas/data/wordpress
+  
+  redis_data:
+    driver: local
   
 
 
