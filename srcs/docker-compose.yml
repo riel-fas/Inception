@@ -126,6 +126,7 @@ services:
       - inception_network
     ports:
       - "9443:9443"
+      - "9000:9000"   # <-- ADD THIS LINE for tunnel/agent communication
     restart: unless-stopped
   
 

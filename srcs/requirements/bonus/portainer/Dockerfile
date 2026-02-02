@@ -21,8 +21,10 @@ RUN cd /opt/portainer && \
 # Create data directory
 RUN mkdir -p /data
 
-# Expose port
-EXPOSE 9443
+# Expose ports
+EXPOSE 9443 9000
 
-# Start Portainer
-CMD ["/opt/portainer/portainer/portainer", "--data", "/data"]
+# Start Portainer - let it auto-generate SSL certs and handle everything
+CMD ["/opt/portainer/portainer/portainer", \
+     "--data", "/data", \
+     "--tunnel-port", "9000"]
