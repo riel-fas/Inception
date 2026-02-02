@@ -1,10 +1,13 @@
-FROM debian:12
+# Use Alpine Linux as base image
+FROM alpine:3.19
 
 # Update package list and install required packages
-RUN apt-get update && apt-get install -y \
+# Note: libc6-compat is needed because the Portainer binary is compiled for glibc
+RUN apk update && apk add --no-cache \
     wget \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    ca-certificates \
+    libc6-compat \
+    gcompat
 
 # Create portainer directory
 RUN mkdir -p /opt/portainer
@@ -13,7 +16,6 @@ RUN mkdir -p /opt/portainer
 RUN cd /opt/portainer && \
     wget https://github.com/portainer/portainer/releases/download/2.33.0/portainer-2.33.0-linux-amd64.tar.gz && \
     tar -xzf portainer-2.33.0-linux-amd64.tar.gz && \
-    chmod +x portainer && \
     rm portainer-2.33.0-linux-amd64.tar.gz
 
 # Create data directory
