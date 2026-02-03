@@ -112,22 +112,6 @@ services:
       - "8080:8080"
     restart: unless-stopped
 
-
-  portainer:
-    container_name: portainer
-    build:
-      context: ./requirements/bonus/portainer
-      dockerfile: Dockerfile
-    image: inception-portainer
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - portainer_data:/data
-    networks:
-      - inception_network
-    ports:
-      - "9443:9443"
-      - "9000:9000"   # <-- ADD THIS LINE for tunnel/agent communication
-    restart: unless-stopped
   
 
 
@@ -149,8 +133,6 @@ volumes:
   redis_data:
     driver: local
   
-  portainer_data:
-    driver: local
   
 
 
