@@ -112,8 +112,20 @@ services:
       - "8080:8080"
     restart: unless-stopped
 
-  
-
+  redis-commander:
+    container_name: redis-commander
+    build:
+      context: ./requirements/bonus/redis-commander
+      dockerfile: Dockerfile
+    image: inception-redis-commander
+    networks:
+      - inception_network
+    depends_on:
+      redis:
+        condition: service_healthy
+    ports:
+      - "8082:8081"
+    restart: unless-stopped
 
 volumes:
   mariadb_data:
