@@ -84,7 +84,7 @@ services:
     build:
       context: ./requirements/bonus/ftp
       dockerfile: Dockerfile
-    image: inception-ftp
+    image: inception_ftp
     env_file:
       - .env
     volumes:
@@ -103,7 +103,7 @@ services:
     build:
       context: ./requirements/bonus/adminer
       dockerfile: Dockerfile
-    image: inception-adminer
+    image: inception_adminer
     networks:
       - inception_network
     depends_on:
@@ -113,7 +113,7 @@ services:
     restart: unless-stopped
 
   redis-commander:
-    container_name: redis-commander
+    container_name: redis_commander
     build:
       context: ./requirements/bonus/redis-commander
       dockerfile: Dockerfile
@@ -125,6 +125,18 @@ services:
         condition: service_healthy
     ports:
       - "8082:8081"
+    restart: unless-stopped
+
+  static-site:
+    container_name: static_site
+    build:
+      context: ./requirements/bonus/static-site
+      dockerfile: Dockerfile
+    image: inception_static_site
+    networks:
+      - inception_network
+    ports:
+      - "3000:3000"
     restart: unless-stopped
 
 volumes:

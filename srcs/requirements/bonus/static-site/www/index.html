@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🇲🇦 WILI WILI Quiz - Inception Bonus</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🐳 Inception Bonus</h1>
+            <p class="subtitle">The Ultimate Corrector Challenge</p>
+        </header>
+
+        <main>
+            <div class="quiz-box" id="quiz-box">
+                <div class="gif-container">
+                    <img id="main-gif" src="https://media1.tenor.com/m/ovs7WC7Y95oAAAAd/wili-wili-wili-wili-n9i.gif" alt="WILI WILI">
+                </div>
+                
+                <div class="question-section" id="question-section">
+                    <h2>🎯 Question for the Corrector:</h2>
+                    <div class="question">
+                        <span class="wili-text">WILI WILI</span> .......?
+                    </div>
+                    
+                    <div class="answer-section">
+                        <input type="text" id="answer-input" placeholder="Type your answer..." autocomplete="off">
+                        <button id="submit-btn" onclick="checkAnswer()">Submit 🚀</button>
+                    </div>
+                    
+                    <p class="attempts" id="attempts"></p>
+                </div>
+
+                <div class="result-section" id="result-section" style="display: none;">
+                    <img id="result-gif" src="" alt="Result">
+                    <p id="result-message"></p>
+                    <button onclick="resetQuiz()" class="retry-btn">Try Again 🔄</button>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>Made with 💖 for 42 Inception Project</p>
+            <p class="small">Static Website Bonus - No PHP allowed!</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

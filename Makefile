@@ -22,7 +22,15 @@ up:
 	@echo "$(YELLOW)Starting containers...$(NC)"
 	docker compose -f $(COMPOSE_FILE) up -d --build
 	@echo "$(GREEN)Containers are running!$(NC)"
-	@echo "$(GREEN)Access your website at: https://riel-fas.42.fr$(NC)"
+	@echo ""
+	@echo "$(GREEN)=============================================$(NC)"
+	@echo "$(GREEN)           🚀 ACCESS URLS 🚀                 $(NC)"
+	@echo "$(GREEN)=============================================$(NC)"
+	@echo "$(GREEN)🌐 WordPress:       https://riel-fas.42.fr$(NC)"
+	@echo "$(GREEN)🗃️  Adminer:         http://riel-fas.42.fr:8080$(NC)"
+	@echo "$(GREEN)📊 Redis Commander: http://riel-fas.42.fr:8082$(NC)"
+	@echo "$(GREEN)🎮 WILI WILI Quiz:  http://riel-fas.42.fr:3000$(NC)"
+	@echo "$(GREEN)=============================================$(NC)"
 
 # Stop all containers
 down:
