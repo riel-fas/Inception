@@ -4,7 +4,6 @@ services:
     build:
       context: ./requirements/mariadb
       dockerfile: Dockerfile
-    image: inception_mariadb
     env_file:
       - .env
     volumes:
@@ -23,7 +22,6 @@ services:
     build:
       context: ./requirements/wordpress
       dockerfile: Dockerfile
-    image: inception_wordpress
     env_file:
       - .env
     volumes:
@@ -45,7 +43,6 @@ services:
     build:
       context: ./requirements/nginx
       dockerfile: Dockerfile
-    image: inception_nginx
     env_file:
       - .env
     volumes:
@@ -64,7 +61,6 @@ services:
     build:
       context: ./requirements/bonus/redis
       dockerfile: Dockerfile
-    image: inception_redis
     volumes:
       - redis_data:/data
     networks:
@@ -84,7 +80,6 @@ services:
     build:
       context: ./requirements/bonus/ftp
       dockerfile: Dockerfile
-    image: inception_ftp
     env_file:
       - .env
     volumes:
@@ -103,7 +98,6 @@ services:
     build:
       context: ./requirements/bonus/adminer
       dockerfile: Dockerfile
-    image: inception_adminer
     networks:
       - inception_network
     depends_on:
@@ -117,7 +111,6 @@ services:
     build:
       context: ./requirements/bonus/redis-commander
       dockerfile: Dockerfile
-    image: inception-redis-commander
     networks:
       - inception_network
     depends_on:
@@ -132,7 +125,6 @@ services:
     build:
       context: ./requirements/bonus/static-site
       dockerfile: Dockerfile
-    image: inception_static_site
     networks:
       - inception_network
     ports:

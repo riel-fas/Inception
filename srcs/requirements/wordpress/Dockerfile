@@ -2,7 +2,7 @@
 FROM alpine:3.19
 
 # Install PHP-FPM and required extensions for WordPress
-RUN apk update && apk add --no-cache \
+RUN apk update && apk add bash &&apk add --no-cache \
     php82 \
     php82-fpm \
     php82-mysqli \
