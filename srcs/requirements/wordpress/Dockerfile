@@ -5,7 +5,9 @@ FROM alpine:3.19
 RUN apk update && apk add bash &&apk add --no-cache \
     php82 \
     php82-fpm \
+    php82-ctype \
     php82-mysqli \
+    php82-redis \
     php82-json \
     php82-curl \
     php82-dom \

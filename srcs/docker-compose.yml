@@ -1,5 +1,6 @@
 services:
   mariadb:
+    image: mariadb:1
     container_name: mariadb
     build:
       context: ./requirements/mariadb
@@ -18,6 +19,7 @@ services:
       retries: 5
 
   wordpress:
+    image: wordpress:1
     container_name: wordpress
     build:
       context: ./requirements/wordpress
@@ -39,6 +41,7 @@ services:
       retries: 5
 
   nginx:
+    image: nginx:1
     container_name: nginx
     build:
       context: ./requirements/nginx
@@ -57,12 +60,11 @@ services:
     restart: unless-stopped
 
   redis:
+    image: redis:1
     container_name: redis
     build:
       context: ./requirements/bonus/redis
       dockerfile: Dockerfile
-    volumes:
-      - redis_data:/data
     networks:
       - inception_network
     depends_on:
@@ -76,6 +78,7 @@ services:
       retries: 5
 
   ftp:
+    image: ftp:1
     container_name: ftp
     build:
       context: ./requirements/bonus/ftp
@@ -94,6 +97,7 @@ services:
     restart: unless-stopped
 
   adminer:
+    image: adminer:1
     container_name: adminer
     build:
       context: ./requirements/bonus/adminer
@@ -107,6 +111,7 @@ services:
     restart: unless-stopped
 
   redis-commander:
+    image: redis-commander:1
     container_name: redis_commander
     build:
       context: ./requirements/bonus/redis-commander
@@ -121,6 +126,7 @@ services:
     restart: unless-stopped
 
   static-site:
+    image: static-site:1
     container_name: static_site
     build:
       context: ./requirements/bonus/static-site
@@ -133,6 +139,7 @@ services:
 
 volumes:
   mariadb_data:
+    name: mariadb_data
     driver: local
     driver_opts:
       type: none
@@ -140,18 +147,14 @@ volumes:
       device: /home/riel-fas/data/mariadb
 
   wordpress_data:
+    name: wordpress_data
     driver: local
     driver_opts:
       type: none
       o: bind
       device: /home/riel-fas/data/wordpress
   
-  redis_data:
-    driver: local
   
-  
-
-
 
 networks:
   inception_network:

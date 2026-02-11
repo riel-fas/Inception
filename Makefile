@@ -29,7 +29,7 @@ up:
 	@echo "$(GREEN)🌐 WordPress:       https://riel-fas.42.fr$(NC)"
 	@echo "$(GREEN)🗃️  Adminer:         http://riel-fas.42.fr:8080$(NC)"
 	@echo "$(GREEN)📊 Redis Commander: http://riel-fas.42.fr:8082$(NC)"
-	@echo "$(GREEN)🎮 WILI WILI Quiz:  http://riel-fas.42.fr:3000$(NC)"
+	@echo "$(GREEN)🎮 Chat Bot:  	   http://riel-fas.42.fr:3000$(NC)"
 	@echo "$(GREEN)=============================================$(NC)"
 
 # Stop all containers
