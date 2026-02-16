@@ -1,7 +1,6 @@
-# Use Alpine Linux as base image (penultimate stable version)
 FROM alpine:3.19
 
-# Install PHP-FPM and required extensions for WordPress
+#Install PHP-FPM and required extensions for WordPress
 RUN apk update && apk add bash &&apk add --no-cache \
     php82 \
     php82-fpm \
@@ -33,26 +32,26 @@ RUN apk update && apk add bash &&apk add --no-cache \
     bash \
     && rm -rf /var/cache/apk/*
 
-# Create necessary directories
+#Create necessary directories
 RUN mkdir -p /var/www/html && \
     mkdir -p /var/log/php82 && \
     chown -R nobody:nobody /var/www/html
 
-# Configure PHP memory limit for CLI and FPM (Increase to 512M)
+#Configure PHP memory limit for CLI and FPM 
 RUN sed -i "s|;*memory_limit =.*|memory_limit = 512M|i" /etc/php82/php.ini
 
-# Copy PHP-FPM configuration
+#Copy PHP-FPM configuration
 COPY conf/www.conf /etc/php82/php-fpm.d/www.conf
 
-# Copy WordPress installation script
+#Copy WordPress installation script
 COPY tools/setup_wordpress.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/setup_wordpress.sh
 
-# Set working directory
+#Set working directory
 WORKDIR /var/www/html
 
-# Expose PHP-FPM port
+#Expose PHP-FPM port
 EXPOSE 9000
 
-# Run the setup script
+#Run the setup script
 ENTRYPOINT ["/usr/local/bin/setup_wordpress.sh"]

@@ -1,25 +1,25 @@
 #!/bin/sh
 
-# Exit on error
+#Exit on error
 set -e
 
 echo "Starting MariaDB initialization..."
 
-# Create log directory
+#Create log directory
 mkdir -p /var/log/mysql
 chown -R mysql:mysql /var/log/mysql
 
-# Check if database is already initialized
+#Check if database is already initialized
 if [ ! -d "/var/lib/mysql/mysql" ]; then
     echo "Initializing MariaDB data directory..."
     
-    # Initialize the database
+    #Initialize the database
     mysql_install_db --user=mysql --datadir=/var/lib/mysql > /dev/null
     
     echo "MariaDB data directory initialized."
 fi
 
-# Start MariaDB temporarily in the background for setup
+#Start MariaDB temporarily in the background for setup
 echo "Starting temporary MariaDB instance..."
 mysqld --user=mysql --bootstrap --verbose=0 --skip-networking=0 << EOF
 USE mysql;
@@ -49,6 +49,6 @@ echo "MariaDB initialization complete!"
 echo "Database: ${MYSQL_DATABASE}"
 echo "User: ${MYSQL_USER}"
 
-# Start MariaDB in the foreground
+#Start MariaDB in the foreground
 echo "Starting MariaDB server..."
 exec mysqld --user=mysql --console

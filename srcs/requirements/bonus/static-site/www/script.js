@@ -10,7 +10,7 @@
     const clearBtn = document.getElementById('clear-btn');
     const welcome = document.getElementById('welcome');
 
-    // ── Knowledge Base ─────────────────────────────────────────
+    // ── Knowledge Base{LLm dyal l3bar hhhhhhhh} ─────────────────────────────────────────
     const KB = [
         {
             keys: ['inception', 'what is inception', 'project', 'about'],
