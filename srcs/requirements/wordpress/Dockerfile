@@ -1,12 +1,11 @@
 FROM alpine:3.19
 
 #Install PHP-FPM and required extensions for WordPress
-RUN apk update && apk add bash &&apk add --no-cache \
+RUN apk update && apk add --no-cache \
     php82 \
     php82-fpm \
     php82-ctype \
     php82-mysqli \
-    php82-redis \
     php82-json \
     php82-curl \
     php82-dom \
@@ -28,7 +27,6 @@ RUN apk update && apk add bash &&apk add --no-cache \
     php82-pecl-redis \
     mariadb-client \
     wget \
-    curl \
     bash \
     && rm -rf /var/cache/apk/*
 
@@ -36,9 +34,6 @@ RUN apk update && apk add bash &&apk add --no-cache \
 RUN mkdir -p /var/www/html && \
     mkdir -p /var/log/php82 && \
     chown -R nobody:nobody /var/www/html
-
-#Configure PHP memory limit for CLI and FPM 
-RUN sed -i "s|;*memory_limit =.*|memory_limit = 512M|i" /etc/php82/php.ini
 
 #Copy PHP-FPM configuration
 COPY conf/www.conf /etc/php82/php-fpm.d/www.conf

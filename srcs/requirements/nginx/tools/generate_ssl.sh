@@ -5,7 +5,7 @@ set -e
 
 echo "Generating SSL certificate for riel-fas.42.fr..."
 
-# enerate self-signed SSL certificate
+#Generate self-signed SSL certificate
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
     -keyout /etc/nginx/ssl/nginx.key \
     -out /etc/nginx/ssl/nginx.crt \
