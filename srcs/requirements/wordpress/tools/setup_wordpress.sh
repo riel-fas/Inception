@@ -1,6 +1,9 @@
-#!/bin/bash
+#!/bin/sh
 
 set -e
+
+# Increase PHP memory limit for wp-cli
+echo "memory_limit = 256M" > /etc/php82/conf.d/99-memory.ini
 
 echo "Starting WordPress setup..."
 
