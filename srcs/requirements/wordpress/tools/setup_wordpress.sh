@@ -8,6 +8,7 @@ echo "memory_limit = 256M" > /etc/php82/conf.d/99-memory.ini
 echo "Starting WordPress setup..."
 
 # Wait for MariaDB to be ready
+#we need to ping directly if a port hange happens in mariadb
 echo "Waiting for MariaDB to be ready..."
 until mysqladmin ping -h"mariadb" -u"${MYSQL_USER}" -p"${MYSQL_PASSWORD}" --silent; do
     echo "MariaDB is unavailable - sleeping"
