@@ -6,7 +6,7 @@
 [![WordPress](https://img.shields.io/badge/WordPress-%23117AC9.svg?style=for-the-badge&logo=WordPress&logoColor=white)](https://wordpress.org/)
 [![MariaDB](https://img.shields.io/badge/MariaDB-003545?style=for-the-badge&logo=mariadb&logoColor=white)](https://mariadb.org/)
 
-> A 42 school system administration project that broadens knowledge of Docker and containerization by recreating a small, production-like web infrastructure from scratch.
+> A 1337 /\ 42 school system administration project that broadens knowledge of Docker and containerization by recreating a small, production-like web infrastructure from scratch.
 
 ---
 
