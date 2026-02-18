@@ -1,5 +1,6 @@
 #!/bin/sh
 
+
 set -e
 
 # Increase PHP memory limit for wp-cli

@@ -1,5 +1,6 @@
 FROM alpine:3.19
 
+
 #Install vsftpd and necessary tools
 RUN apk update && apk add --no-cache \
     vsftpd \

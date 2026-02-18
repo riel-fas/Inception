@@ -16,3 +16,4 @@ chmod 600 /etc/nginx/ssl/nginx.key
 chmod 644 /etc/nginx/ssl/nginx.crt
 
 echo "SSL certificate generated successfully!"
+

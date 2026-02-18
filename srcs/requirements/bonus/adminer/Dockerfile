@@ -1,5 +1,6 @@
 FROM alpine:3.19
 
+
 #Install PHP and required extensions for Adminer
 RUN apk update && apk add --no-cache \
     php82 \

@@ -50,3 +50,4 @@ EXPOSE 9000
 
 #Run the setup script
 ENTRYPOINT ["/usr/local/bin/setup_wordpress.sh"]
+

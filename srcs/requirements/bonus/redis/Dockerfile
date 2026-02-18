@@ -1,5 +1,6 @@
 FROM alpine:3.19
 
+
 #Install Redis
 RUN apk update && apk add --no-cache \
     redis \

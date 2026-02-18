@@ -27,3 +27,4 @@ EXPOSE 443
 
 #Start NGINX in foreground
 CMD ["nginx", "-g", "daemon off;"]
+
