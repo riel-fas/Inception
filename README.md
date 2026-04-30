@@ -15,23 +15,24 @@
 
 ---
 
-##  Table of Contents
+## Table of Contents
 
-- [About the Project](#-about-the-project)
-- [Overview](#-architecture-overview)
-- [Services](#-services)
-  - [Mandatory](#mandatory-services)
-  - [Bonus](#bonus-services)
-- [Project Structure](#-project-structure)
-- [Concepts Explained](#-concepts-explained)
+- [About the Project](#about-the-project)
+- [Overview](#overview)
+- [Services](#services)
+  - [Mandatory Services](#mandatory-services)
+  - [Bonus Services](#bonus-services)
+- [Project Structure](#project-structure)
+- [Concepts Explained](#concepts-explained)
   - [Docker vs Virtual Machines](#docker-vs-virtual-machines)
   - [Docker Networks](#docker-networks)
   - [Docker Volumes vs Bind Mounts](#docker-volumes-vs-bind-mounts)
   - [Secrets vs Environment Variables](#secrets-vs-environment-variables)
   - [Why Alpine Linux?](#why-alpine-linux)
-- [TLS / SSL](#-tls--ssl)
-- [How Services Communicate](#-how-services-communicate)
-- [Resources](#-resources)
+- [TLS / SSL](#tls--ssl)
+- [How Services Communicate](#how-services-communicate)
+- [Common Issues & Debugging](#common-issues--debugging)
+- [Resources](#resources)
 
 ---
 
@@ -81,14 +82,14 @@ Data is persisted at: /home/user/data/
 
 ### Mandatory Services
 
-####  NGINX
+#### NGINX
 - Acts as the **reverse proxy** and sole entry point to the infrastructure
 - Configured to only accept **TLSv1.2 and TLSv1.3** connections (HTTP is not served)
 - Listens on port **443**
 - Forwards PHP requests to WordPress via FastCGI (port 9000)
 - Self-signed SSL certificate generated at container startup
 
-####  WordPress
+#### WordPress
 - Runs **PHP-FPM** (FastCGI Process Manager) — no Apache
 - CMS for managing web content
 - Connects to MariaDB for persistent storage
@@ -96,7 +97,7 @@ Data is persisted at: /home/user/data/
 - WordPress CLI (`wp-cli`) is used in the entrypoint script for automated setup
 - Does **not** expose a port to the host — only NGINX reaches it
 
-####  MariaDB
+#### MariaDB
 - The **relational database** for WordPress
 - Stores all WordPress posts, users, settings, etc.
 - Database, user, and password are created automatically via the entrypoint script
@@ -106,33 +107,33 @@ Data is persisted at: /home/user/data/
 
 ### Bonus Services
 
-####  Redis
+#### Redis
 - In-memory key-value store used as a **WordPress object cache**
 - Reduces database load and speeds up page delivery
 - Configured in WordPress via the `WP_REDIS_HOST` environment variable
 
-####  FTP Server
+#### FTP Server
 - Allows file transfer to the WordPress volume
 - Points to the WordPress data directory
 - Useful for directly uploading themes, plugins, and media
 
-####  Adminer
+#### Adminer
 - Lightweight **database management web UI**
 - Accessible through NGINX on a dedicated path/port
 - Alternative to phpMyAdmin — single PHP file, very fast
 
-####  Redis Commander [optionsl choice]
+#### Redis Commander (optional choice)
 - Web interface for **browsing and managing Redis data**
 - Helps debug caching issues during development
 
-####  Static Website [optionsl choice]
+#### Static Website (optional choice)
 - A simple custom HTML/CSS/JS website
 - Served independently by NGINX
 - Demonstrates multi-site serving in a single infrastructure
 
 ---
 
-##  Project Structure
+## Project Structure
 
 ```
 Inception/
@@ -179,7 +180,7 @@ Inception/
 
 ---
 
-##  Concepts Explained
+## Concepts Explained
 
 ### Docker vs Virtual Machines
 
@@ -195,6 +196,7 @@ Understanding why we use Docker instead of VMs is fundamental to this project.
 | **Use Case** | Full OS needed, strong security boundaries | Microservices, CI/CD, development environments |
 
 > **Summary:** Docker containers are more efficient and faster than VMs, but VMs provide stronger isolation.
+
 ---
 
 ### Docker Networks
@@ -272,10 +274,27 @@ All custom images in this repo. are based on **Alpine Linux** instead of Debian.
 
 Alpine keeps containers lean and fast by default. The tradeoff is that some packages have different names or aren't available, requiring more careful configuration.
 
+---
+
+## Setup & Installation
+
+> Coming soon / refer to USER_DOC.md
 
 ---
 
-##  TLS / SSL
+## Makefile Commands
+
+> Coming soon / refer to USER_DOC.md
+
+---
+
+## Environment Variables
+
+> Coming soon / refer to USER_DOC.md
+
+---
+
+## TLS / SSL
 
 NGINX is configured to **only accept HTTPS connections** using **TLSv1.2 and TLSv1.3**.
 
@@ -304,7 +323,7 @@ server {
 
 ---
 
-##  How Services Communicate
+## How Services Communicate
 
 All containers are on the same custom Docker network (`inception_network`), allowing them to resolve each other by **container name**:
 
@@ -320,7 +339,13 @@ No container exposes its internal ports to the host except through NGINX (port 4
 
 ---
 
-##  Resources
+## Common Issues & Debugging
+
+> Coming soon / refer to DEV_DOC.md
+
+---
+
+## Resources
 
 ### Official Documentation
 - [Docker Docs](https://docs.docker.com/)
@@ -337,6 +362,5 @@ No container exposes its internal ports to the host except through NGINX (port 4
 - [Understanding Docker Networking](https://docs.docker.com/network/)
 - [WP-CLI Quick Start](https://make.wordpress.org/cli/handbook/guides/quick-start/)
 - [Redis Object Cache Plugin for WP](https://wordpress.org/plugins/redis-cache/)
-
 
 ---
