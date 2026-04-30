@@ -1,229 +1,346 @@
-# Inception 🋠
+<div align="center">
 
-[![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
-[![Alpine Linux](https://img.shields.io/badge/Alpine_Linux-%230D597F.svg?style=for-the-badge&logo=alpine-linux&logoColor=white)](https://alpinelinux.org/)
-[![NGINX](https://img.shields.io/badge/nginx-%23009639.svg?style=for-the-badge&logo=nginx&logoColor=white)](https://nginx.org/)
-[![WordPress](https://img.shields.io/badge/WordPress-%23117AC9.svg?style=for-the-badge&logo=WordPress&logoColor=white)](https://wordpress.org/)
-[![MariaDB](https://img.shields.io/badge/MariaDB-003545?style=for-the-badge&logo=mariadb&logoColor=white)](https://mariadb.org/)
+# 🐳 Inception — 42 School Project
 
-> A 1337 /\ 42 school system administration project that broadens knowledge of Docker and containerization by recreating a small, production-like web infrastructure from scratch.
+**A fully Dockerized infrastructure built from scratch**
+
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![NGINX](https://img.shields.io/badge/NGINX-009639?style=for-the-badge&logo=nginx&logoColor=white)
+![WordPress](https://img.shields.io/badge/WordPress-21759B?style=for-the-badge&logo=wordpress&logoColor=white)
+![MariaDB](https://img.shields.io/badge/MariaDB-003545?style=for-the-badge&logo=mariadb&logoColor=white)
+![Alpine](https://img.shields.io/badge/Alpine_Linux-0D597F?style=for-the-badge&logo=alpine-linux&logoColor=white)
+
+
+</div>
 
 ---
 
-## 📖 About
+##  Table of Contents
 
-This project sets up a complete multi-service web infrastructure using **Docker Compose**, where every container is built from a custom `Dockerfile` based on **Alpine Linux**. No pre-built images are used. The stack includes a secure NGINX reverse proxy (TLS only), a WordPress/PHP-FPM application server, a MariaDB database backend, and several bonus services.
+- [About the Project](#-about-the-project)
+- [Architecture Overview](#-architecture-overview)
+- [Services](#-services)
+  - [Mandatory](#mandatory-services)
+  - [Bonus](#bonus-services)
+- [Project Structure](#-project-structure)
+- [Concepts Explained](#-concepts-explained)
+  - [Docker vs Virtual Machines](#docker-vs-virtual-machines)
+  - [Docker Networks](#docker-networks)
+  - [Docker Volumes vs Bind Mounts](#docker-volumes-vs-bind-mounts)
+  - [Secrets vs Environment Variables](#secrets-vs-environment-variables)
+  - [Why Alpine Linux?](#why-alpine-linux)
+- [Setup & Installation](#-setup--installation)
+- [Makefile Commands](#-makefile-commands)
+- [Environment Variables](#-environment-variables)
+- [TLS / SSL](#-tls--ssl)
+- [How Services Communicate](#-how-services-communicate)
+- [Common Issues & Debugging](#-common-issues--debugging)
+- [Resources](#-resources)
 
 ---
 
-## 🗏 Architecture Overview
+## About the Project
 
-All containers communicate over a dedicated bridge network (`inception_network`). Backend services are never directly exposed to the outside world — all traffic enters through NGINX on port 443.
+**Inception** is a 1337/42 schools system administration project. The goal is to build a small but complete web infrastructure using **Docker Compose**, where every service runs in its own container and built all from custom Dockerfiles using **Alpine** or **Debian** as the base image.
+
+So this not pulling pre-configured images from Docker Hub but its about building each service from scratch, and orchestrating everything cleanly with `docker-compose`.
+
+Key objectives:
+- Build custom Docker images (no pre-built WordPress/NGINX/MariaDB images allowed)
+- Use Docker Compose for orchestration
+- Implement proper secret management
+- Persist data using bind mounts
+- Secure communications with TLS
+
+---
+
+## Overview
 
 ```
-                        [ Internet ]
-                             |
-                        Port 443 (HTTPS)
-                             |
-                       ┌─────▼──────┐
-                       │   NGINX    │  ← TLS termination, reverse proxy
-                       └─────┬──────┘
-                             │ FastCGI (port 9000)
-                       ┌─────▼──────┐       ┌──────────┐
-                       │ WordPress  │ ──────▶│  Redis   │  ← Object cache
-                       │  PHP-FPM   │       └──────────┘
-                       └─────┬──────┘
-                             │ SQL (port 3306)
-                       ┌─────▼──────┐
-                       │  MariaDB   │
-                       └────────────┘
-```
+                        ┌─────────────────────────────────────┐
+                        │           Host Machine              │
+                        │                                     │
+  Browser (HTTPS) ──────►  NGINX (:443)                       │
+                        │     │                               │
+                        │     ├──► WordPress (PHP-FPM :9000)  │
+                        │     │        │                      │
+                        │     │        └──► MariaDB (:3306)   │
+                        │     │        │                      │
+                        │     │        └──► Redis (:6379)     │
+                        │     │                               │
+                        │     ├──► Adminer (:8080)            │
+                        │     ├──► Redis Commander (:8081)    │
+                        │     └──► Static Website (:80)       │
+                        │                                     │
+                        │  FTP Server (:21)                   │
+                        └─────────────────────────────────────┘
 
-| Service | Port(s) | Function | Volume |
-|---|---|---|---|
-| **NGINX** | `443` (HTTPS) | Reverse Proxy, TLS Termination | — |
-| **WordPress** | `9000` (internal) | CMS, PHP-FPM Processor | `wordpress_data` |
-| **MariaDB** | `3306` (internal) | Database Backend | `mariadb_data` |
-| **Redis** | `6379` (internal) | Object Cache (Bonus) | — |
-| **FTP** | `21`, `21000–21010` | File Transfer (Bonus) | `wordpress_data` |
-| **Adminer** | `8080` (HTTP) | Web DB Management (Bonus) | — |
-| **Redis Commander** | `8082` (HTTP) | Web Redis Management (Bonus) | — |
-| **Static Site** | `3000` (HTTP) | Simple Showcase Site (Bonus) | — |
+All containers run on: inception_network (bridge)
+Data is persisted at: /home/user/data/
+```
 
 ---
 
-## 📂 File Structure
+## Services
 
-```text
+### Mandatory Services
+
+####  NGINX
+- Acts as the **reverse proxy** and sole entry point to the infrastructure
+- Configured to only accept **TLSv1.2 and TLSv1.3** connections (HTTP is not served)
+- Listens on port **443**
+- Forwards PHP requests to WordPress via FastCGI (port 9000)
+- Self-signed SSL certificate generated at container startup
+
+####  WordPress
+- Runs **PHP-FPM** (FastCGI Process Manager) — no Apache
+- CMS for managing web content
+- Connects to MariaDB for persistent storage
+- Connects to Redis for object caching (bonus)
+- WordPress CLI (`wp-cli`) is used in the entrypoint script for automated setup
+- Does **not** expose a port to the host — only NGINX reaches it
+
+####  MariaDB
+- The **relational database** for WordPress
+- Stores all WordPress posts, users, settings, etc.
+- Database, user, and password are created automatically via the entrypoint script
+- Data persisted via a bind mount to `/home/riel-fas/data/mariadb`
+
+---
+
+### Bonus Services
+
+####  Redis
+- In-memory key-value store used as a **WordPress object cache**
+- Reduces database load and speeds up page delivery
+- Configured in WordPress via the `WP_REDIS_HOST` environment variable
+
+####  FTP Server
+- Allows file transfer to the WordPress volume
+- Points to the WordPress data directory
+- Useful for directly uploading themes, plugins, and media
+
+####  Adminer
+- Lightweight **database management web UI**
+- Accessible through NGINX on a dedicated path/port
+- Alternative to phpMyAdmin — single PHP file, very fast
+
+####  Redis Commander [optionsl choice]
+- Web interface for **browsing and managing Redis data**
+- Helps debug caching issues during development
+
+####  Static Website [optionsl choice]
+- A simple custom HTML/CSS/JS website
+- Served independently by NGINX
+- Demonstrates multi-site serving in a single infrastructure
+
+---
+
+##  Project Structure
+
+```
 Inception/
-├── Makefile                # Command automation
-├── srcs/
-│   ├── docker-compose.yml  # Main orchestration file
-│   ├── .env                # Secrets (NOT in git!)
-│   └── requirements/
-│       ├── mariadb/        # DB Service
-│       ├── nginx/          # Web Server
-│       ├── wordpress/      # CMS
-│       └── bonus/
-│           ├── adminer/
-│           ├── ftp/
-│           ├── redis/
-│           ├── redis-commander/
-│           └── static-site/
-└── README.md
+│
+├── Makefile                    # Build & management commands
+├── .gitignore
+├── README.md
+├── DEV_DOC.md                  # Developer documentation
+├── USER_DOC.md                 # User documentation
+├── en.subject.pdf              # 42 project subject
+│
+├── secrets/                    # Sensitive credentials (not committed)
+│   ├── db_password.txt
+│   ├── db_root_password.txt
+│   └── ...
+│
+└── srcs/
+    ├── docker-compose.yml      # Orchestration file
+    ├── .env                    # Environment variables (not committed)
+    │
+    └── requirements/
+        ├── nginx/
+        │   ├── Dockerfile
+        │   └── conf/
+        │       └── nginx.conf
+        │
+        ├── wordpress/
+        │   ├── Dockerfile
+        │   └── tools/
+        │       └── entrypoint.sh
+        │
+        ├── mariadb/
+        │   ├── Dockerfile
+        │   └── tools/
+        │       └── entrypoint.sh
+        │
+        └── bonus/
+            ├── redis/
+            ├── ftp/
+            ├── adminer/
+            ├── redis-commander/
+            └── website/
 ```
 
 ---
 
-## 🚀 Getting Started
+##  Concepts Explained
 
-### Prerequisites
+### Docker vs Virtual Machines
 
-- Docker & Docker Compose installed on a Linux VM.
-- Add the following line to your `/etc/hosts` file:
-  ```
-  127.0.0.1 login.42.fr
-  ```
-- Create your `.env` file inside `srcs/` with your credentials (see `.env.example` if provided). **Never commit this file.**
+Understanding why we use Docker instead of VMs is fundamental to this project.
 
-### Commands
+| Feature | Virtual Machines | Docker Containers |
+|---|---|---|
+| **Architecture** | Emulates full hardware; runs a complete OS per VM | Virtualizes at the OS level; shares the host kernel |
+| **Resources** | Heavy,  each VM has its own kernel, consumes lots of RAM/CPU | Lightweight, containers share the host kernel |
+| **Startup Time** | Slow (minutes) | Fast (seconds or less) |
+| **Isolation** | Strong, hardware-level isolation | Moderate, process-level isolation (namespaces + cgroups) |
+| **Portability** | Harder, VM images are large and OS-dependent | Easy, images are small, portable, and reproducible |
+| **Use Case** | Full OS needed, strong security boundaries | Microservices, CI/CD, development environments |
 
-| Action | Command |
+> **Summary:** Docker containers are more efficient and faster than VMs, but VMs provide stronger isolation.
+---
+
+### Docker Networks
+
+Docker networks allow containers to communicate with each other in a controlled and isolated way.
+
+**Why use a custom Docker network instead of the host network?**
+
+| Docker Network (bridge) | Host Network |
 |---|---|
-| **Build & Start** | `make` or `make up` |
-| **Stop** | `make down` |
-| **Clean Everything** | `make fclean` |
-| **Rebuild** | `make re` |
-| **View Logs** | `make logs` |
-| **Check Status** | `docker compose -f srcs/docker-compose.yml ps` |
+| Containers are isolated from the host network | Container shares host's network namespace |
+| Containers communicate via **container name as DNS** | No DNS must use host IPs |
+| Ports are only exposed when explicitly mapped | All ports are exposed automatically |
+| **Secure**  no unintended port exposure | **Less secure**  every port is accessible |
+| Slightly slower (NAT layer) | Fastest (no NAT) |
+
+In this project, all containers are connected to `inception_network`  a custom bridge network. This means:
+- Containers can reach each other by name (e.g., WordPress connects to `mariadb:3306`)
+- Nothing is exposed to the outside except port 443 (NGINX)
+
+---
+
+### Docker Volumes vs Bind Mounts
+
+Data persistence is critical. Containers are ephemeral — when they stop, data is gone unless stored externally.
+
+| Docker Volumes | Bind Mounts |
+|---|---|
+| Managed entirely by Docker | Maps a **specific host path** to a container path |
+| Stored in `/var/lib/docker/volumes/` (opaque) | You control exactly where data lives on the host |
+| Easier to manage via `docker volume` CLI | Harder to manage, but more transparent |
+| Better for production isolation | Better for development (direct access to files) |
+
+**This project uses Bind Mounts:**
+- WordPress data → `/home/user/data/wordpress`
+- MariaDB data → `/home/user/data/mariadb`
+
+This makes data explicitly visible on the host filesystem and survives even if Docker is completely reset.
+
+---
+
+### Secrets vs Environment Variables
+
+Sensitive data (passwords, tokens) should never be stored in plain environment variables.
+
+**Why Environment Variables are risky:**
+- Visible via `docker inspect <container>`
+- Visible in `/proc/<pid>/environ` inside the container
+- Can be accidentally logged
+- Visible in shell history if typed inline
+
+**Why Secrets are better:**
+- Stored as files, mounted at `/run/secrets/<name>` inside the container
+- Never appear in `docker inspect`
+- Access is controlled — only the container that needs it gets it
+
+**This project's approach:**  
+Secrets are stored as text files in the `secrets/` directory and injected into containers via Docker Compose's `secrets:` directive. Entrypoint scripts read from `/run/secrets/` instead of environment variables wherever possible.
+
+> ⚠️ The `secrets/` directory and the `.env` are listed in `.gitignore` and should **never** be committed to version control.
+
+---
+
+### Why Alpine Linux?
+
+All custom images in this repo. are based on **Alpine Linux** instead of Debian.
+
+| | Alpine Linux | Ubuntu/Debian |
+|---|---|---|
+| **Image size** | ~5MB base | ~70–120MB base |
+| **Attack surface** | Minimal — fewer packages installed | Larger — more pre-installed tools |
+| **Package manager** | `apk` | `apt` |
+| **Init system** | `busybox` / `openrc` | `systemd` |
+| **Performance** | Faster to pull and start | Slower |
+
+Alpine keeps containers lean and fast by default. The tradeoff is that some packages have different names or aren't available, requiring more careful configuration.
+
+
+---
+
+##  TLS / SSL
+
+NGINX is configured to **only accept HTTPS connections** using **TLSv1.2 and TLSv1.3**.
+
+A **self-signed SSL certificate** is generated during the NGINX container startup using `openssl`:
 
 ```bash
-# Build and start the entire stack in detached mode
-make
-
-# View logs for a specific service
-docker compose -f srcs/docker-compose.yml logs -f wordpress
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+  -keyout /etc/ssl/private/nginx.key \
+  -out /etc/ssl/certs/nginx.crt \
+  -subj "/C=MA/ST=Casablanca/L=Casablanca/O=42/CN=riel-fas.42.fr"
 ```
 
-Once running, access the services at:
+The NGINX config enforces TLS only:
 
-- 🌐 **WordPress site** → `https://login.42.fr`
-- 🗄️ **Adminer (DB UI)** → `http://login.42.fr:8080`
-- 🔴 **Redis Commander** → `http://login.42.fr:8082`
-- 📄 **Static Site** → `http://login.42.fr:3000`
+```nginx
+server {
+    listen 443 ssl;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_certificate     /etc/ssl/certs/nginx.crt;
+    ssl_certificate_key /etc/ssl/private/nginx.key;
+    ...
+}
+```
+
+> There is no plain HTTP (port 80) listener for the main site — only HTTPS.
 
 ---
 
-## 🛠️ Implementation Details
+##  How Services Communicate
 
-### NGINX — The Gatekeeper
+All containers are on the same custom Docker network (`inception_network`), allowing them to resolve each other by **container name**:
 
-NGINX is the **only entry point** to the infrastructure. It handles TLS termination and forwards PHP requests to the WordPress container via FastCGI.
+```
+NGINX      ──FastCGI──►  wordpress:9000
+WordPress  ──TCP──────►  mariadb:3306
+WordPress  ──TCP──────►  redis:6379
+NGINX      ──HTTP─────►  adminer:8080
+NGINX      ──HTTP─────►  website:80
+```
 
-- Listens exclusively on port **443 (HTTPS)**.
-- Uses a **self-signed SSL certificate** generated via `openssl` at build time.
-- Enforces **TLS v1.2 / v1.3** only.
-- Proxies dynamic PHP requests to the `wordpress` container on port **9000**.
-
-### WordPress + PHP-FPM
-
-WordPress is the CMS, served by PHP-FPM (FastCGI Process Manager) for high performance.
-
-- A setup script automatically installs WordPress via `wp-cli`, creates users, and configures the Redis cache plugin.
-- PHP memory limit is raised to `256M` for heavy operations.
-
-How a request flows:
-1. User requests `https://login.42.fr`
-2. **NGINX** receives and decrypts the HTTPS traffic.
-3. PHP requests are passed to **WordPress/PHP-FPM** on port 9000.
-4. PHP-FPM executes the code, queries **MariaDB** (or reads from **Redis** cache).
-5. The resulting HTML is returned through **NGINX** to the user.
-
-### MariaDB — The Database
-
-MariaDB (a MySQL fork) stores all WordPress data: users, posts, comments, and settings.
-
-- Remote root login is **disabled** for security.
-- A dedicated user and password are created for WordPress access.
-- Data is persisted to `/home/login/data/mariadb` on the host via a **Docker volume**, so it survives container restarts and rebuilds.
-
-### Volumes & Persistence
-
-Docker volumes map container directories to host paths, ensuring data outlives the containers:
-
-| Volume | Host Path | Container Path |
-|---|---|---|
-| `mariadb_data` | `/home/login/data/mariadb` | `/var/lib/mysql` |
-| `wordpress_data` | `/home/login/data/wordpress` | `/var/www/html` |
-
-### Docker Network
-
-All containers are isolated inside `inception_network` (a custom bridge network). They communicate by service name (DNS resolution), and none of the backend services (MariaDB, Redis) expose ports directly to the host.
+No container exposes its internal ports to the host except through NGINX (port 443) or specific explicitly mapped ports (FTP, for our example).
 
 ---
 
-## 🌟 Bonus Features
+##  Resources
 
-### ⚡ Redis — Object Cache
-Redis caches WordPress database queries in memory. Without Redis, each page load can trigger ~20 database queries. With caching, repeated requests are served from RAM in microseconds.
-- Configured as an **LRU (Least Recently Used)** cache with memory limits.
-- Manageable via the Redis Commander web UI at `http://login.42.fr:8082`.
+### Official Documentation
+- [Docker Docs](https://docs.docker.com/)
+- [Docker Compose Docs](https://docs.docker.com/compose/)
+- [NGINX Docs](https://nginx.org/en/docs/)
+- [MariaDB Docs](https://mariadb.com/kb/en/)
+- [WordPress CLI (wp-cli)](https://wp-cli.org/)
+- [Redis Docs](https://redis.io/docs/)
+- [Alpine Linux Packages](https://pkgs.alpinelinux.org/)
 
-### 📂 FTP Server — vsftpd
-Provides direct file access to the WordPress volume without needing SSH.
-- Users are **chrooted** to the WordPress directory for security.
-- Connect with FileZilla or `lftp`:
-  ```bash
-  lftp -u ftpuser,yourpassword ftp://login.42.fr
-  ```
+### Useful Guides
+- [PHP-FPM + NGINX Setup](https://www.nginx.com/resources/wiki/start/topics/examples/phpfcgi/)
+- [Docker Secrets](https://docs.docker.com/engine/swarm/secrets/)
+- [Understanding Docker Networking](https://docs.docker.com/network/)
+- [WP-CLI Quick Start](https://make.wordpress.org/cli/handbook/guides/quick-start/)
+- [Redis Object Cache Plugin for WP](https://wordpress.org/plugins/redis-cache/)
 
-### 🗄️ Adminer — Web Database UI
-A lightweight web-based database manager (alternative to phpMyAdmin).
-- Access at `http://login.42.fr:8080`
-- Login with your WordPress DB credentials to browse tables and run queries.
-
-### 🔴 Redis Commander
-A web UI for viewing and managing Redis keys in real time.
-- Access at `http://login.42.fr:8082`
-
-### 📄 Static Website
-A simple HTML page served by a standalone NGINX container, demonstrating static content delivery separate from WordPress.
-- Access at `http://login.42.fr:3000`
 
 ---
-
-## 🧠 Key Concepts
-
-### Containers vs. Virtual Machines
-
-| | Virtual Machines | Containers |
-|---|---|---|
-| **Isolates** | Hardware | User Space (OS) |
-| **Kernel** | Each VM has its own | Shared with host |
-| **Boot time** | Minutes | Milliseconds |
-| **Size** | GBs | MBs |
-
-Containers use two core Linux kernel features for isolation:
-
-- **Namespaces** — give each container its own view of the system (process tree, network stack, filesystem root).
-- **Cgroups** — limit how much CPU and RAM a container can consume.
-
-### Docker Image Layers
-
-Every instruction in a `Dockerfile` creates a cached, read-only layer. When a container runs, a thin read-write layer is added on top. This means 10 containers sharing the same base image only store the image once on disk.
-
-```
-┌──────────────────────────┐
-│  Container Layer (R/W)   │  ← Your changes while running
-├──────────────────────────┤
-│  Layer 3: App Code (R/O) │
-├──────────────────────────┤
-│  Layer 2: Nginx   (R/O)  │
-├──────────────────────────┤
-│  Layer 1: Alpine  (R/O)  │
-└──────────────────────────┘
-```
-
-### PID 1 & the `exec` Pattern
-
-PID 1 is the first process in a container — it must handle OS signals like `SIGTERM` to shut down gracefully. By ending entrypoint scripts with `exec <service>`, the service process itself becomes PID 1 (replacing the shell), ensuring correct signal handling. Using `tail -f /dev/null` as a workaround is **forbidden** by the project rules.
