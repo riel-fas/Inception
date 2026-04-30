@@ -18,7 +18,7 @@
 ##  Table of Contents
 
 - [About the Project](#-about-the-project)
-- [Architecture Overview](#-architecture-overview)
+- [Overview](#-architecture-overview)
 - [Services](#-services)
   - [Mandatory](#mandatory-services)
   - [Bonus](#bonus-services)
@@ -29,12 +29,8 @@
   - [Docker Volumes vs Bind Mounts](#docker-volumes-vs-bind-mounts)
   - [Secrets vs Environment Variables](#secrets-vs-environment-variables)
   - [Why Alpine Linux?](#why-alpine-linux)
-- [Setup & Installation](#-setup--installation)
-- [Makefile Commands](#-makefile-commands)
-- [Environment Variables](#-environment-variables)
 - [TLS / SSL](#-tls--ssl)
 - [How Services Communicate](#-how-services-communicate)
-- [Common Issues & Debugging](#-common-issues--debugging)
 - [Resources](#-resources)
 
 ---
